@@ -99,7 +99,11 @@ END_OF_C
 =head2 is_integer
 
 Returns true if its argument is an integer. Note that "1" is not an integer, it
-is a string. 1 is an integer. 1.0 and 1.1 are not integers.
+is a string. 1 is an integer. 1.1 is obviously not an integer. 1.0 is also not
+an integer, as it makes a different statement about precision - 1 is *exactly*
+one, but 1.0 is only one to two significant figures.
+
+All integers are of course also numbers.
 
 =cut
 
@@ -110,8 +114,8 @@ sub is_integer {
 
 =head2 is_number
 
-Returns true if its argument is a number. Note that "1" is not an integer, it
-is a string. 1 is a number. 1.0 and 1.1 are numbers too.
+Returns true if its argument is a number. "1" is not a number, it is a string.
+1 is a number. 1.0 and 1.1 are numbers too.
 
 =cut
 
@@ -127,6 +131,14 @@ L<Scalar::Util> in particular its C<blessed> function.
 =head1 BUGS
 
 If you find any bugs please report them on Github, preferably with a test case.
+
+Integers that are specifed using exponential notation, such as if you say 1e2
+instead of 100, are *not* internally treated as integers. The perl parser is
+lazy and only bothers to convert them into an integer after you perform int-ish
+operations on them, such as adding 0. Likewise if you add 0 to the thoroughly
+non-numeric "100" perl will convert it to an integer. These edge cases are partly
+why you almost certainly don't care about what this module does. If they irk
+you, complain to p5p.
 
 =head1 FEEDBACK
 
