@@ -1,12 +1,13 @@
-This module gets truly random data from online sources.  Or at least,
-they claim to be truly random.
+This module grovels in perl's guts to see if a variable really is a number,
+as opposed to a string that just looks like a number, and whether it is an
+integer or not. ie, it can tell the difference between "100", 100, and 100.0.
 
-Note that because we are testing random data, the tests of how well-
-distributed the results are may occasionally fail.  If at first you
-don't succeed try, try, try again.
+100 is an integer.
 
-The problem is explained here:
-  http://web.archive.org/web/20011027002011/http://dilbert.com/comics/dilbert/archive/images/dilbert2001182781025.gif
+"100" is a string that looks like an integer.
+
+100.0 is numerically equivalent to 100, but it is only accurate to 4
+significant figures.
 
 To install, do the usual:
 	perl Makefile.PL
