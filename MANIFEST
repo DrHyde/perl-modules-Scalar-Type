@@ -1,0 +1,9 @@
+lib/Scalar/Type.pm
+t/all.t
+README
+MANIFEST
+Makefile.PL
+ARTISTIC.txt
+CHANGELOG
+GPL2.txt
+MANIFEST.SKIP

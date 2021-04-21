@@ -1,0 +1,18 @@
+use ExtUtils::MakeMaker;
+
+WriteMakefile(
+    NAME => 'Scalar::Type',
+    META_MERGE => {
+        license => 'open_source',
+        resources => {
+            repository => 'https://github.com/DrHyde/perl-modules-Scalar-Type',
+            bugtracker => 'https://github.com/DrHyde/perl-modules-Scalar-Type/issues'
+        },
+    },
+    VERSION_FROM => 'lib/Scalar/Type.pm',
+    PREREQ_PM => {
+        'Scalar::Util' => 0,
+        'Inline::C'    => 0.81,
+        'Test::More'   => 0.96,
+    }
+);
