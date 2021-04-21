@@ -12,6 +12,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          cpanm --notest Inline::C
           cpanm --installdeps .
           cpanm Devel::Cover::Report::Coveralls
           cover -test -report Coveralls
