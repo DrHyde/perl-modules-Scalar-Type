@@ -1,3 +1,4 @@
+use 5.008;
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
@@ -14,5 +15,8 @@ WriteMakefile(
         'Scalar::Util' => 0,
         'Inline::C'    => 0.81,
         'Test::More'   => 0.96,
-    }
+    },
+    realclean => {
+        FILES => "_Inline"
+    },
 );
