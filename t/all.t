@@ -12,6 +12,10 @@ subtest "is_integer" => sub {
     ok(!is_integer("1"), '"1" is not an integer');
     ok(!is_integer(1.0), '1.0 is not an integer');
     ok(!is_integer(1.1), '1.1 is not an integer');
+
+    # the IV slot in the SV got filled
+    my $foo = "1"; $foo += 0;
+    ok(is_integer($foo), '"1" + 0 gets its IV slot filled, is an integer');
 };
 
 subtest "is_number" => sub {
@@ -28,10 +32,7 @@ subtest "integers written as exponents are weird" => sub {
     ok(!is_integer(-1e2), '-1e2 is not an integer');
     ok(is_number(-1e2),   '... but it is a number');
 
-    # the IV slot in the SV got filled
-    my $foo = "1"; $foo += 0;
-    ok(is_integer($foo), '"1" + 0 gets its IV slot filled, is an integer');
-    $foo = 1e2; $foo += 0;
+    my $foo = 1e2; $foo += 0;
     ok(is_integer($foo), '1e2 + 0 is an integer');
     $foo = 0; $foo += 1e2;
     ok(is_integer($foo), '0 + 1e2 is an integer');
