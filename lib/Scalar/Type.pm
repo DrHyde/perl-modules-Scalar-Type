@@ -7,7 +7,7 @@ use Scalar::Util qw(blessed);
 
 use base qw(Exporter);
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.0.2';
 
 =head1 NAME
 

@@ -57,11 +57,19 @@ subtest "integers written as exponents are weird" => sub {
         ok(is_number(-1e10),   '... but it is a number');
     
         my $foo = 1e10; $foo += 0;
-        ok(is_integer($foo), '1e10 + 0 is an integer');
-        $foo = 0; $foo += 1e10;
-        ok(is_integer($foo), '0 + 1e10 is an integer');
-        $foo = -1e10; $foo += 0;
-        ok(is_integer($foo), '-1e10 + 0 is an integer');
+        if(~0 < $foo) { # 32 bit system
+            ok(!is_integer($foo), '1e10 + 0 is not an integer because your computer is pathetic');
+            $foo = 0; $foo += 1e10;
+            ok(!is_integer($foo), '0 + 1e10 is not an integer because your computer is pathetic');
+            $foo = -1e10; $foo += 0;
+            ok(!is_integer($foo), '-1e10 + 0 is not an integer because your computer is pathetic');
+        } else {
+            ok(is_integer($foo), '1e10 + 0 is an integer');
+            $foo = 0; $foo += 1e10;
+            ok(is_integer($foo), '0 + 1e10 is an integer');
+            $foo = -1e10; $foo += 0;
+            ok(is_integer($foo), '-1e10 + 0 is an integer');
+        }
     };
     subtest "64 bit-unfriendly exp ints" => sub {
         ok(!is_integer(1e20),  '1e20 is not an integer');
