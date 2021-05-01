@@ -12,9 +12,11 @@ WriteMakefile(
     },
     VERSION_FROM => 'lib/Scalar/Type.pm',
     PREREQ_PM => {
-        'Scalar::Util' => 0,
-        'Inline::C'    => 0.81,
-        'Test::More'   => 0.96,
+        'Scalar::Util'  => 0,
+        'Inline::C'     => 0.81,
+        'Test::More'    => 0.96,
+        'Devel::Peek'   => 0,
+        'Capture::Tiny' => 0,
     },
     realclean => {
         FILES => "_Inline"
