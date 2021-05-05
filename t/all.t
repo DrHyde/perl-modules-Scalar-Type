@@ -9,6 +9,9 @@ use B;
 use Capture::Tiny qw(capture_stderr);
 use Devel::Peek;
 
+select(STDERR); $| = 1;
+select(STDOUT); $| = 1;
+
 subtest "is_integer" => sub {
     ok(is_integer(1), '1 is an integer');
     ok(is_integer(-1), '-1 is an integer');
