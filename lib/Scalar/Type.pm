@@ -89,39 +89,40 @@ sub type {
 
 use Inline C => <<'END_OF_C';
 
-// Unfortunately this would also promote 1.0 to an int, which we don't want.
-// We want to only do that for 1e2 and friends, and that means we have to get
-// our oar in rather earlier, in toke.c
-// 
-// void _attempt_int_promote(SV* argument) {
-//     if(SvNOK(argument) && !SvIOK(argument)) {
-//         /* retrieve the 'double' value from the NV slot and get an
-//            equivalent int, losing anything after the decimal point
-//         */
-//         NV nv = SvNVX(argument);
-//         IV potential_iv = (IV)nv;
-//         
-//         int SV_is_readonly = SvREADONLY(argument);
-// 
-//         /* now turn the int back into a double and if it's the same
-//            as what we started with, fill in the IV slot
-//         */
-//         if((NV)potential_iv == nv) {
-//             if(SV_is_readonly) { SvREADONLY_off(argument); }
-//             SvIV_set(argument, potential_iv);
-//             SvIOK_on(argument);
-//             if(SV_is_readonly) { SvREADONLY_on(argument); }
-//         }
-//     }
-// }
-
 SV* _scalar_type(SV* argument) {
-    // /* handle nonsense like 1e2 being recognised by perl as a number but not an int */
-    // _attempt_int_promote(argument);
+    SV* rval;
+    char num_as_str[100]; /* potential buffer overflow on 256-bit machines :-) */
 
-    return SvIOK(argument) ? newSVpv("INTEGER", 7) :
-           SvNOK(argument) ? newSVpv("NUMBER",  6) : 
-                             newSVpv("SCALAR",  6);
+    if(SvIOK(argument)) {
+        if(SvPOK(argument)) {
+            /* int is also a string, better see if it's not int-ified 007 */
+            /* is %ld OK in 32-bit land? */
+            sprintf(num_as_str, "%ld", SvIVX(argument));
+            rval = (
+                (strcmp(SvPVX(argument), num_as_str)) == 0
+                    ? newSVpv("INTEGER", 7)
+                    : newSVpv("SCALAR",  6)
+            );
+        } else {
+            rval = newSVpv("INTEGER", 7);
+        }
+    } else if(SvNOK(argument)) {
+        if(SvPOK(argument)) {
+            /* float is also a string, better see if it's not float-ified 007.5 */
+            sprintf(num_as_str, "%Lf", SvNVX(argument));
+            rval = (
+                (strcmp(SvPVX(argument), num_as_str)) == 0
+                    ? newSVpv("NUMBER", 6)
+                    : newSVpv("SCALAR", 6)
+            );
+        } else {
+            rval = newSVpv("NUMBER", 6);
+        }
+    } else {
+        rval = newSVpv("SCALAR",  6);
+    }
+
+    return rval;
 }
 
 END_OF_C

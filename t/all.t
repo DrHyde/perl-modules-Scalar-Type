@@ -89,6 +89,38 @@ subtest "integers written as exponents are weird" => sub {
     };
 };
 
+subtest "string subsequently used as an int or float" => sub {
+    subtest "'007'" => sub {
+        my $foo = '007';
+        $foo < 8;
+        ok($foo eq '007', "after being treated as an int it still has its original value");
+        is(type($foo), 'SCALAR', "and it's not become an integer as far as we're concerned");
+        note(capture_stderr { Dump($foo) });
+    };
+
+    subtest "'007.5'" => sub {
+        my $foo = "007.5";
+        $foo + 0.5;
+        ok($foo eq '007.5', "after being treated as a float it still has its original value");
+        is(type($foo), 'SCALAR', "and it's not become a float as far as we're concerned");
+        note(capture_stderr { Dump($foo) });
+    };
+
+    subtest "'7'" => sub {
+        my $foo = '7';
+        $foo < 8;
+        is(type($foo), 'INTEGER', "this does become an int after a numeric operation");
+        note(capture_stderr { Dump($foo) });
+    };
+};
+
+subtest "int subsequently used as a float" => sub {
+    my $foo = 7;
+    $foo + 0.5;
+    ok($foo == 7, "after being treated as a float the variable still has its original value 7");
+    ok(is_integer($foo), "7 is still an integer after being numerically compared to a float");
+};
+
 subtest "are we checking the flags, not just the contents of the IV/NV slots?" => sub {
     my $foo = 42;
     ok(is_integer($foo), 'variable containing 42 is an integer');
