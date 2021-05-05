@@ -12,5 +12,4 @@ build_script:
   - gmake
 
 test_script:
-  - set HARNESS_VERBOSE=1
-  - gmake test
+  - gmake TEST_VERBOSE=1 test
