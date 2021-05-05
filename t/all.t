@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+no warnings 'void';
 
 use Test::More;
 
