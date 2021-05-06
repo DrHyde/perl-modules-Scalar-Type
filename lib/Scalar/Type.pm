@@ -91,7 +91,7 @@ use Inline C => <<'END_OF_C';
 
 SV* _scalar_type(SV* argument) {
     SV* rval;
-    char num_as_str[100]; /* potential buffer overflow on 256-bit machines :-) */
+    static char num_as_str[100]; /* potential buffer overflow on 256-bit machines :-) */
 
     if(SvIOK(argument)) {
         if(SvPOK(argument)) {
