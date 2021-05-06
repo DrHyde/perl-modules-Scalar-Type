@@ -97,7 +97,7 @@ SV* _scalar_type(SV* argument) {
         if(SvPOK(argument)) {
             /* int is also a string, better see if it's not int-ified 007 */
             /* is %ld OK in 32-bit land? */
-            sprintf(num_as_str, "%ld", SvIVX(argument));
+            sprintf(num_as_str, "%" IVdf, SvIVX(argument));
             rval = (
                 (strcmp(SvPVX(argument), num_as_str)) == 0
                     ? newSVpv("INTEGER", 7)
@@ -109,7 +109,7 @@ SV* _scalar_type(SV* argument) {
     } else if(SvNOK(argument)) {
         if(SvPOK(argument)) {
             /* float is also a string, better see if it's not float-ified 007.5 */
-            sprintf(num_as_str, "%Lf", SvNVX(argument));
+            sprintf(num_as_str, "%" NVff, SvNVX(argument));
             rval = (
                 (strcmp(SvPVX(argument), num_as_str)) == 0
                     ? newSVpv("NUMBER", 6)
