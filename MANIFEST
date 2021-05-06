@@ -7,3 +7,5 @@ ARTISTIC.txt
 CHANGELOG
 GPL2.txt
 MANIFEST.SKIP
+t/pod-coverage.t
+t/pod.t
