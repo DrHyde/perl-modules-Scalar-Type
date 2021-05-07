@@ -116,6 +116,13 @@ subtest "string subsequently used as an int or float" => sub {
         is(type($foo), 'INTEGER', "this does become an int after a numeric operation");
         note(capture_stderr { Dump($foo) });
     };
+
+    subtest "'7.5'" => sub {
+        my $foo = '7.5';
+        $foo < 8;
+        is(type($foo), 'NUMBER', "this does become a float after a numeric operation");
+        note(capture_stderr { Dump($foo) });
+    };
 };
 
 subtest "int subsequently used as a float" => sub {

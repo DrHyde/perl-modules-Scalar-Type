@@ -22,7 +22,7 @@ SV* _scalar_type(SV* argument) {
     } else if(SvNOK(argument)) {
         if(SvPOK(argument)) {
             /* float is also a string, better see if it's not float-ified 007.5 */
-            sprintf(num_as_str, "%" NVff, SvNVX(argument));
+            sprintf(num_as_str, "%" NVgf, SvNVX(argument));
             rval = (
                 (strcmp(SvPVX(argument), num_as_str)) == 0
                     ? newSVpv("NUMBER", 6)
