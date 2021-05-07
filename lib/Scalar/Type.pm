@@ -3,11 +3,14 @@ package Scalar::Type;
 use strict;
 use warnings;
 
+our $VERSION = '0.0.3';
+
+require XSLoader;
+XSLoader::load(__PACKAGE__, $VERSION);
+
 use Scalar::Util qw(blessed);
 
 use base qw(Exporter);
-
-our $VERSION = '0.0.3';
 
 =head1 NAME
 
@@ -86,46 +89,6 @@ sub type {
            ref($arg)     ? 'REF_TO_'.ref($arg) :
                            _scalar_type($arg);
 }
-
-use Inline C => <<'END_OF_C';
-
-SV* _scalar_type(SV* argument) {
-    SV* rval;
-    static char num_as_str[100]; /* potential buffer overflow on 256-bit machines :-) */
-
-    if(SvIOK(argument)) {
-        if(SvPOK(argument)) {
-            /* int is also a string, better see if it's not int-ified 007 */
-            /* is %ld OK in 32-bit land? */
-            sprintf(num_as_str, "%" IVdf, SvIVX(argument));
-            rval = (
-                (strcmp(SvPVX(argument), num_as_str)) == 0
-                    ? newSVpv("INTEGER", 7)
-                    : newSVpv("SCALAR",  6)
-            );
-        } else {
-            rval = newSVpv("INTEGER", 7);
-        }
-    } else if(SvNOK(argument)) {
-        if(SvPOK(argument)) {
-            /* float is also a string, better see if it's not float-ified 007.5 */
-            sprintf(num_as_str, "%" NVff, SvNVX(argument));
-            rval = (
-                (strcmp(SvPVX(argument), num_as_str)) == 0
-                    ? newSVpv("NUMBER", 6)
-                    : newSVpv("SCALAR", 6)
-            );
-        } else {
-            rval = newSVpv("NUMBER", 6);
-        }
-    } else {
-        rval = newSVpv("SCALAR",  6);
-    }
-
-    return rval;
-}
-
-END_OF_C
 
 =head2 is_integer
 

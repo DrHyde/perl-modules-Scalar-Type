@@ -1,4 +1,5 @@
 lib/Scalar/Type.pm
+Type.xs
 t/all.t
 README
 MANIFEST
