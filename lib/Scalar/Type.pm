@@ -3,7 +3,7 @@ package Scalar::Type;
 use strict;
 use warnings;
 
-our $VERSION = '0.0.4';
+our $VERSION = '0.1.0';
 
 require XSLoader;
 XSLoader::load(__PACKAGE__, $VERSION);
@@ -78,9 +78,9 @@ sub import {
 Returns the type of its argument. If the argument is a reference then it
 returns either C<blessed($argument)> (if it's an object),
 C<'REF_TO_'.ref($argument)>, or C<'UNDEF'> for undefined values. Otherwise it
-looks for the IOK or NOK flags on the underlying SV and returns C<INTEGER> or
-C<NUMBER> as appropriate. Finally, if neither of those are set it returns
-C<SCALAR>.
+looks for the IOK or NOK flags on the underlying SV (see <L/"GORY DETAILS"> for
+the exact mechanics) and returns C<INTEGER> or C<NUMBER> as appropriate.
+Finally, if neither of those are set it returns C<SCALAR>.
 
 =cut
 
@@ -230,7 +230,13 @@ slot to be filled, and the C<IOK> flag set. It should, of course, be clear
 to any fan of classic literature that "007" and 7 are very different things.
 "007" is not an integer.
 
-=head2 WHAT Scalar::Type DOES
+=head2 WHAT Scalar::Type DOES (at least in version 0.1.0)
+
+NB that this section documents an internal function that is not intended
+for public use. The interface of C<_scalar_type> should be considered to
+be unstable, not fit for human consumption, and subject to change without
+notice. This documentation is correct as of version 0.1.0 but may not be
+updated for future versions - its purpose is pedagogical only.
 
 The C<is_*> functions are just wrappers around the C<type> function. That
 in turn delegates most of the work to a few lines of C code which grovel

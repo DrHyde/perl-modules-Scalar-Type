@@ -1,3 +1,9 @@
+0.1.0    XXXX-XX-XX
+
+- type() can return UNDEF
+
+- doco improvements
+
 0.0.4    2021-05-07
 
 - bugfix: internally use the correct sprintf format for stringifying floats
