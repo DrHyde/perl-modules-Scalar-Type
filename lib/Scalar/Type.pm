@@ -84,7 +84,6 @@ Finally, if neither of those are set it returns C<SCALAR>.
 
 =cut
 
-# FIXME test undef
 sub type {
     my $arg = shift || undef;
     return blessed($arg)  ? blessed($arg)       :
