@@ -3,7 +3,9 @@ package Scalar::Type;
 use strict;
 use warnings;
 
-our $VERSION = '0.1.0';
+use Carp qw(croak);
+
+our $VERSION = '0.1.1';
 
 require XSLoader;
 XSLoader::load(__PACKAGE__, $VERSION);
@@ -73,6 +75,9 @@ sub import {
 
 =head1 FUNCTIONS
 
+All of these functions require an argument. It is a fatal error to call
+them without.
+
 =head2 type
 
 Returns the type of its argument. If the argument is a reference then it
@@ -85,7 +90,8 @@ Finally, if neither of those are set it returns C<SCALAR>.
 =cut
 
 sub type {
-    my $arg = shift || undef;
+    croak(__PACKAGE__."::type requires an argument") if($#_ == -1);
+    my $arg = shift;
     return blessed($arg)  ? blessed($arg)       :
            ref($arg)      ? 'REF_TO_'.ref($arg) :
            !defined($arg) ? 'UNDEF'             :
@@ -104,8 +110,8 @@ All integers are of course also numbers.
 =cut
 
 sub is_integer {
-    my $candidate = shift;
-    type($candidate) eq 'INTEGER' ? 1 : 0;
+    croak(__PACKAGE__."::is_integer requires an argument") if($#_ == -1);
+    type(@_) eq 'INTEGER' ? 1 : 0;
 }
 
 =head2 is_number
@@ -116,8 +122,8 @@ Returns true if its argument is a number. "1" is not a number, it is a string.
 =cut
 
 sub is_number {
-    my $candidate = shift;
-    is_integer($candidate) || type($candidate) eq 'NUMBER' ? 1 : 0;
+    croak(__PACKAGE__."::is_number requires an argument") if($#_ == -1);
+    is_integer(@_) || type(@_) eq 'NUMBER' ? 1 : 0;
 }
 
 =head1 GORY DETAILS

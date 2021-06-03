@@ -1,3 +1,10 @@
+0.1.1    2021-06-03
+
+- bugfix: all functions require an argument; to not supply one is a fatal error.
+  Previously they would erroneously behave as of you passed in `undef`.
+
+- bugfix: 0 is correctly treated as not being `undef`.
+
 0.1.0    2021-05-25
 
 - type() can return UNDEF
