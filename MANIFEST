@@ -1,6 +1,6 @@
 lib/Scalar/Type.pm
 Type.xs
-t/all.t
+t/types.t
 README
 MANIFEST
 Makefile.PL
@@ -10,3 +10,4 @@ GPL2.txt
 MANIFEST.SKIP
 t/pod-coverage.t
 t/pod.t
+t/sizeof.t

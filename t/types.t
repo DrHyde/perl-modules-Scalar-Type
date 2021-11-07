@@ -192,17 +192,17 @@ subtest "type returns the documented values for non-reference types" => sub {
 
 throws_ok(
     sub { type() },
-    qr{::type requires an argument at t/all.t line},
+    qr{::type requires an argument at t/types.t line},
     "type() requires an argument"
 );
 throws_ok(
     sub { is_number() },
-    qr{::is_number requires an argument at t/all.t line},
+    qr{::is_number requires an argument at t/types.t line},
     "is_number() requires an argument"
 );
 throws_ok(
     sub { is_integer() },
-    qr{::is_integer requires an argument at t/all.t line},
+    qr{::is_integer requires an argument at t/types.t line},
     "is_integer() requires an argument"
 );
 
