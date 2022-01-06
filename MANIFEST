@@ -11,3 +11,4 @@ MANIFEST.SKIP
 t/pod-coverage.t
 t/pod.t
 t/sizeof.t
+t/bool.t
