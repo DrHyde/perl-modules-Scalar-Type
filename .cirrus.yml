@@ -13,14 +13,16 @@ task:
 
 task:
   name: MacOS
+  env:
+    PERLVER: 5.30.3
   osx_instance:
     image: catalina-xcode-12.0
   test_script:
     - curl -L https://install.perlbrew.pl | bash
     - source ~/perl5/perlbrew/etc/bashrc
     - perlbrew init
-    - perlbrew install -v perl-5.30.3
-    - perlbrew switch perl-5.30.3
+    - perlbrew install -v perl-$PERLVER
+    - perlbrew switch perl-$PERLVER
     - perlbrew install-cpanm -f
     - perl -v
     - cpanm TAP::Harness::Env
