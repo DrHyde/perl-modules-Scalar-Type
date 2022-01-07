@@ -6,13 +6,14 @@ use warnings;
 our $BOOL_SUPPORTED;
 
 BEGIN { $BOOL_SUPPORTED = ($] >= 5.035007) }
+sub bool_supported { $BOOL_SUPPORTED; }
 
-use if $BOOL_SUPPORTED, qw(builtin isbool);
+use if bool_supported(), qw(builtin isbool);
 
 use Carp qw(croak);
 use Config;
 
-our $VERSION = '0.3.0';
+our $VERSION = '0.3.1';
 
 require XSLoader;
 XSLoader::load(__PACKAGE__, $VERSION);
@@ -69,7 +70,7 @@ For Reasons, C<:is_*> is equivalent.
 =cut
 
 our @EXPORT_OK = qw(
-    type sizeof is_integer is_number is_bool
+    type sizeof is_integer is_number is_bool bool_supported
 );
 our %EXPORT_TAGS = (
     all => \@EXPORT_OK,
@@ -102,16 +103,21 @@ Otherwise it looks for the IOK or NOK flags on the underlying SV (see
 L</"GORY DETAILS"> for the exact mechanics) and returns C<INTEGER> or C<NUMBER>
 as appropriate. Finally, if neither of those are set it returns C<SCALAR>.
 
+=head2 bool_supported
+
+Returns true if the C<'BOOL'> type is supported on this perl (ie if your
+perl version is 5.35.7 or later) and false otherwise.
+
 =cut
 
 sub type {
     croak(__PACKAGE__."::type requires an argument") if($#_ == -1);
     my $arg = shift;
-    return blessed($arg)                     ? blessed($arg)       :
-           ref($arg)                         ? 'REF_TO_'.ref($arg) :
-           !defined($arg)                    ? 'UNDEF'             :
-           ($BOOL_SUPPORTED && isbool($arg)) ? 'BOOL'              :
-                                               _scalar_type($arg);
+    return blessed($arg)                    ? blessed($arg)       :
+           ref($arg)                        ? 'REF_TO_'.ref($arg) :
+           !defined($arg)                   ? 'UNDEF'             :
+           (bool_supported && isbool($arg)) ? 'BOOL'              :
+                                              _scalar_type($arg);
 }
 
 =head2 sizeof
@@ -170,7 +176,7 @@ Returns true if its argument is a Boolean - ie, the result of a comparison.
 =cut
 
 sub is_bool {
-    croak(__PACKAGE__."::is_bool not supported on your perl") if(!$BOOL_SUPPORTED);
+    croak(__PACKAGE__."::is_bool not supported on your perl") if(!bool_supported);
     croak(__PACKAGE__."::is_bool requires an argument") if($#_ == -1);
     type(@_) eq 'BOOL';
 }

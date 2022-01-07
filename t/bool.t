@@ -8,7 +8,7 @@ use Config;
 
 use Scalar::Type qw(:all);
 
-if($Scalar::Type::BOOL_SUPPORTED) {
+if(Scalar::Type::bool_supported) {
     is(
         type(1 == 1),
         'BOOL',
