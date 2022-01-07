@@ -1,4 +1,4 @@
-X.X.X    XXXX-XX-XX
+0.3.0    2022-01-07
 
 - add support for BOOL type on perl 5.35.7 and later
 

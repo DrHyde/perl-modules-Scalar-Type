@@ -12,7 +12,7 @@ use if $BOOL_SUPPORTED, qw(builtin isbool);
 use Carp qw(croak);
 use Config;
 
-our $VERSION = '0.2.0';
+our $VERSION = '0.3.0';
 
 require XSLoader;
 XSLoader::load(__PACKAGE__, $VERSION);
