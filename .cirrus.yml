@@ -19,6 +19,9 @@ task:
     - name: MacOS, perl 5.35.7
       env:
         PERLVER: 5.35.7
+    - name: MacOS, blead-perl
+      env:
+        PERLVER: blead
   osx_instance:
     image: catalina-xcode-12.0
   test_script:
