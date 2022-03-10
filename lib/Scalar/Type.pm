@@ -5,6 +5,7 @@ use warnings;
 
 our $IS_BOOL_FN;
 
+# these shenanigans can be pared back a bit once 5.36 is out
 BEGIN {
     $IS_BOOL_FN = $] >= 5.035010 ? 'builtin::is_bool' :
                   $] >= 5.035007 ? 'builtin::isbool'  :
@@ -20,7 +21,7 @@ use if bool_supported() eq 'builtin::is_bool', qw(experimental builtin);
 use Carp qw(croak);
 use Config;
 
-our $VERSION = '0.3.1';
+our $VERSION = '0.3.2';
 
 require XSLoader;
 XSLoader::load(__PACKAGE__, $VERSION);
