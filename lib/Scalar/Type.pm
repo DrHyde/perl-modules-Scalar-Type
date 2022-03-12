@@ -21,7 +21,7 @@ use if bool_supported() eq 'builtin::is_bool', qw(experimental builtin);
 use Carp qw(croak);
 use Config;
 
-our $VERSION = '0.3.2';
+our $VERSION = '1.0.0';
 
 require XSLoader;
 XSLoader::load(__PACKAGE__, $VERSION);
@@ -65,7 +65,7 @@ B<looks like> a number you'll get a sensible result:
 But in some rare cases, generally when you are serialising data, the difference
 matters. This package provides some useful functions to help you figure out what's
 what. The following functions are available. None of them are exported by default.
-If you want them all, export ':all':
+If you want all that are available, export ':all':
 
     use Scalar::Type qw(:all);
 
@@ -78,8 +78,9 @@ For Reasons, C<:is_*> is equivalent.
 =cut
 
 our @EXPORT_OK = qw(
-    type sizeof is_integer is_number is_bool bool_supported
+    type sizeof is_integer is_number bool_supported
 );
+push @EXPORT_OK, 'is_bool' if(bool_supported());
 our %EXPORT_TAGS = (
     all => \@EXPORT_OK,
     'is_*' => [grep { /^is_/ } @EXPORT_OK]
@@ -178,7 +179,8 @@ sub is_number {
 
 =head2 is_bool
 
-It is a fatal error to call this on perl versions earlier than 5.35.7.
+This is not available on perl versions earlier than 5.35.7. It is a fatal error
+to call this or try to import it on older perls.
 
 Returns true if its argument is a Boolean - ie, the result of a comparison.
 
