@@ -313,25 +313,25 @@ an integer) or C<''> (false, an empty string), they have a flag to indicate
 their Booleanness. This is exposed via the C<builtin::is_bool> perl function
 so we don't need to do XS voodoo to interrogate it.
 
-=head2 WHAT Scalar::Type DOES (at least in version 0.1.0)
+=head2 WHAT Scalar::Type DOES (at least in version 1.0.0)
 
 NB that this section documents an internal function that is not intended
 for public use. The interface of C<_scalar_type> should be considered to
 be unstable, not fit for human consumption, and subject to change without
-notice. This documentation is correct as of version 0.1.0 but may not be
+notice. This documentation is correct as of version 1.0.0 but may not be
 updated for future versions - its purpose is pedagogical only.
 
 The C<is_*> functions are just wrappers around the C<type> function. That
 in turn delegates most of the work to a few lines of C code which grovel
 around looking at the contents of the individual slots and flags. That
 function isn't exported, but if you really want to call it directly it's
-called C<_scalar_type> and will return one of four strings, C<INTEGER>,
+called C<_scalar_type> and will return one of three strings, C<INTEGER>,
 C<NUMBER>, or C<SCALAR>. It will return C<SCALAR> even for a reference or
 undef, which is why I said that the C<type> function only *mostly* wraps
 around it :-)
 
 The first thing that C<_scalar_type> does is look at the C<IOK> flag.
-If it's set, and the C<POK> flag is not set, the it returns C<INTEGER>.
+If it's set, and the C<POK> flag is not set, then it returns C<INTEGER>.
 If C<IOK> and C<POK> are set it stringifies the contents of the C<IV> slot,
 compares to the contents of the C<PV> slot, and returns C<INTEGER> if
 they are the same, or C<SCALAR> otherwise.
