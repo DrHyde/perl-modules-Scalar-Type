@@ -1,4 +1,4 @@
-name: linux-32bit
+name: Linux (32bit)
 on:
   push:
     branches:
