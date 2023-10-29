@@ -32,11 +32,7 @@ use base qw(Exporter);
 
 =head1 NAME
 
-Scalar::Type
-
-=head1 DESCRIPTION
-
-Figure out what type a scalar is
+Scalar::Type - figure out what type a scalar is
 
 =head1 SYNOPSIS
 
