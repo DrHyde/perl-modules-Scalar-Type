@@ -1,7 +1,9 @@
-1.0.0    XXXX-XX-XX
+1.0.0    2023-10-29
 
 - change: trying to use is_bool on a perl that doesn't support it is now a
   fatal error at import-time
+
+- bugfix: clarified some inconsistent text about licencing
 
 0.3.2    2022-03-10
 
