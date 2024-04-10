@@ -15,6 +15,10 @@ my $events = intercept {
         is_bool(1==1, "pass");
         is_bool(1==2, "pass");
         is_bool(1,    "fail");
+        is_integer(1==1, "fail");
+        is_number(1==1, "fail");
+        is_integer(1==2, "fail");
+        is_number(1==2, "fail");
     }
 };
 
@@ -28,9 +32,13 @@ foreach my $test (
     { result => 'Pass', name => 'is_number(1)'    },
     { result => 'Pass', name => 'is_number(1.2)'  },
     { result => 'Fail', name => 'is_number("1")'  },
-    { result => 'Pass', name => 'is_bool(1==1)', bool_required => 1 },
-    { result => 'Pass', name => 'is_bool(1==2)', bool_required => 1 },
-    { result => 'Fail', name => 'is_bool(1)',    bool_required => 1 },
+    { result => 'Pass', name => 'is_bool(1==1)',    bool_required => 1 },
+    { result => 'Pass', name => 'is_bool(1==2)',    bool_required => 1 },
+    { result => 'Fail', name => 'is_bool(1)',       bool_required => 1 },
+    { result => 'Fail', name => 'is_integer(1==1)', bool_required => 1 },
+    { result => 'Fail', name => 'is_number(1==1)',  bool_required => 1 },
+    { result => 'Fail', name => 'is_integer(1==2)', bool_required => 1 },
+    { result => 'Fail', name => 'is_number(1==2)',  bool_required => 1 },
 ) {
     SKIP: {
         skip "Your perl doesn't support the Boolean type"
