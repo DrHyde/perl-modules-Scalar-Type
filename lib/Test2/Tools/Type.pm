@@ -4,6 +4,9 @@ use strict;
 use warnings;
 
 use base qw(Exporter);
+
+our $VERSION = '1';
+
 use Carp qw(croak);
 
 use Test2::API qw(context);
