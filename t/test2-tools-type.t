@@ -59,7 +59,7 @@ subtest "is_* tests" => sub {
     if(!bool_supported()) {
         like
             dies { is_bool(1==1) },
-            qr/You need perl 5.38/,
+            qr/You need perl 5.36/,
             "is_bool: perl too old, exception";
     }
 };
@@ -113,7 +113,7 @@ subtest "type() tests" => sub {
     if(!bool_supported()) {
         like
             dies { is(1, type('bool')) },
-            qr/You need perl 5.38/,
+            qr/You need perl 5.36/,
             "type('bool'): perl too old, exception";
     }
     like

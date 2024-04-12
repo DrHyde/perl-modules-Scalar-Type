@@ -29,7 +29,7 @@ sub is_integer { _checker(\&Scalar::Type::is_integer, @_); }
 sub is_number  { _checker(\&Scalar::Type::is_number,  @_); }
 
 sub is_bool {
-    croak("You need perl 5.38 or higher to use is_bool")
+    croak("You need perl 5.36 or higher to use is_bool")
         unless(bool_supported());
     _checker(\&Scalar::Type::is_bool, @_);
 }
