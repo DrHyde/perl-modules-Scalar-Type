@@ -348,6 +348,8 @@ the number.
 
 =head1 SEE ALSO
 
+L<Test2::Tools::Type>, which is bundled with this module.
+
 L<Scalar::Util> in particular its C<blessed> function.
 
 L<builtin> if you have perl 5.35.7 or later.
