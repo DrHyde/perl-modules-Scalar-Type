@@ -14,7 +14,12 @@ use Test2::Compare::Type ();
 
 use Scalar::Type qw(bool_supported);
 
-our @EXPORT = qw(is_integer is_number is_bool bool_supported type);
+our @EXPORT = qw(
+    is_integer is_number
+    is_positive is_negative is_zero
+    is_bool bool_supported
+    type
+);
 
 sub import {
     if($_[1] && $_[1] eq 'show_types') {
@@ -25,9 +30,11 @@ sub import {
     goto &Exporter::import;
 }
 
-sub is_integer { _checker(\&Scalar::Type::is_integer, @_); }
-sub is_number  { _checker(\&Scalar::Type::is_number,  @_); }
-
+sub is_integer  { _checker(\&Scalar::Type::is_integer, @_); }
+sub is_number   { _checker(\&Scalar::Type::is_number,  @_); }
+sub is_positive { _checker(sub { $_[0] > 0 },   @_); }
+sub is_negative { _checker(sub { $_[0] < 0 },   @_); }
+sub is_zero     { _checker(sub { $_[0] == 0; }, @_); }
 sub is_bool {
     croak("You need perl 5.36 or higher to use is_bool")
         unless(bool_supported());
@@ -53,7 +60,7 @@ sub type {
     return Test2::Compare::Type->new(
         file  => $caller[1],
         lines => [$caller[2]],
-        type  => $_[0],
+        type  => \@_,
     );
 }
 
@@ -120,6 +127,14 @@ Emits a test pass if its argument is a number and a fail otherwise. Note that it
 can tell the difference between C<1> (a number), C<1.2> (also a number) and
 C<'1'> (a string).
 
+=head2 is_positive, is_negative
+
+Check the argument's sign. Note that C<0> is considered neither positive nor negative.
+
+=head2 is_zero
+
+Check that the argument is zero.
+
 =head2 type
 
 Returns a check that you can use in a test such as:
@@ -136,8 +151,17 @@ You can negate the test with a C<!> thus. This test will fail:
         hash { field int => !type('integer'); },
         "the 'int' field is an integer";
 
-Valid arguments are any of the C<is_*> methods' names, with the leading C<is_> removed.
-You can see a list of supported types thus:
+You can supply more than one argument, so if you want to check that
+something is a I<positive> integer, for example, you can do:
+
+    is(94, type(qw(positive integer)));
+
+And you can check a value and a type:
+
+    is($foo, type('integer', 94));
+
+Valid arguments are numbers and any of the C<is_*> methods' names, with the
+leading C<is_> removed. You can see a list of supported types thus:
 
     $ perl -MTest2::Tools::Type=show_types -e0
 

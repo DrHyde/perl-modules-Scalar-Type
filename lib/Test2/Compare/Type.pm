@@ -19,14 +19,23 @@ use Carp qw(croak);
 sub init {
     my $self = shift;
 
-    croak "'type' is a required attribute" unless($self->{+TYPE});
-    croak "'".$self->{+TYPE}."' is not a valid type"
-        unless(Test2::Tools::Type->can('is_'.$self->{+TYPE}));
+    croak "'type' is a required attribute" unless(@{$self->{+TYPE}});
+    foreach my $type (@{$self->{+TYPE}}) {
+        if(
+            !Scalar::Type::is_number($type) &&
+            !Test2::Tools::Type->can("is_$type")
+        ) {
+            croak "'$type' is not a valid type"
+        }
+    }
 
     $self->SUPER::init();
 }
 
-sub name { shift->{+TYPE} . "" }
+sub name {
+    join(" and ", map { Scalar::Type::is_number($_) ? 'has value' : $_ } @{shift->{+TYPE}})
+}
+
 sub operator { join(' ', 'is', (shift->{+NEGATE} ? 'not' : ()), 'of type') }
 
 sub verify {
@@ -36,12 +45,16 @@ sub verify {
 
     return 0 unless $exists;
 
-    my $is_func = 'Test2::Tools::Type::is_'.$self->{+TYPE};
-    my $result;
-    {
-        no strict 'refs';
-        local $Test2::Compare::Type::verifying = 1;
-        $result = $is_func->($got);
+    my $result = 1;
+    foreach my $type (@{$self->{+TYPE}}) {
+        if(Scalar::Type::is_number($type)) {
+            $result &&= ($got == $type);
+        } else {
+            my $is_func = "Test2::Tools::Type::is_$type";
+            no strict 'refs';
+            local $Test2::Compare::Type::verifying = 1;
+            $result &&= $is_func->($got);
+        }
     }
     $result = !$result if($self->{+NEGATE});
     return $result;
