@@ -1,7 +1,5 @@
 package Test2::Compare::Type;
 
-# almost entirely cargo-culted from Test2::Compare::Pattern
-
 use strict;
 use warnings;
 
@@ -9,23 +7,26 @@ use base 'Test2::Compare::Base';
 
 our $VERSION = '1';
 
-use Test2::Util::HashBase qw(type);
+use Test2::Compare qw(compare strict_convert);
 use Test2::Compare::Negatable;
 use Test2::Tools::Type ();
+use Test2::Util::HashBase qw(type);
 use Scalar::Type qw(bool_supported);
+use Scalar::Util qw(blessed);
 
 use Carp qw(croak);
 
 sub init {
     my $self = shift;
 
-    croak "'type' is a required attribute" unless(@{$self->{+TYPE}});
+    croak "'type' requires at least one argument" unless(@{$self->{+TYPE}});
     foreach my $type (@{$self->{+TYPE}}) {
         if(
             !Scalar::Type::is_number($type) &&
+            !(blessed($type) && $type->isa('Test2::Compare::Base')) &&
             !Test2::Tools::Type->can("is_$type")
         ) {
-            croak "'$type' is not a valid type"
+            croak "'$type' is not a valid type. If you think it should be please report this as a bug."
         }
     }
 
@@ -33,7 +34,14 @@ sub init {
 }
 
 sub name {
-    join(" and ", map { Scalar::Type::is_number($_) ? 'has value' : $_ } @{shift->{+TYPE}})
+    join(
+        " and ",
+        map {
+            Scalar::Type::is_number($_)      ? 'has value' :
+            Test2::Tools::Type->can("is_$_") ? $_          :
+                                               blessed($_)
+        } @{shift->{+TYPE}}
+    )
 }
 
 sub operator { join(' ', 'is', (shift->{+NEGATE} ? 'not' : ()), 'of type') }
@@ -49,11 +57,12 @@ sub verify {
     foreach my $type (@{$self->{+TYPE}}) {
         if(Scalar::Type::is_number($type)) {
             $result &&= ($got == $type);
-        } else {
-            my $is_func = "Test2::Tools::Type::is_$type";
-            no strict 'refs';
+        } elsif(Test2::Tools::Type->can("is_$type")) {
             local $Test2::Compare::Type::verifying = 1;
-            $result &&= $is_func->($got);
+            no strict 'refs';
+            $result &&= "Test2::Tools::Type::is_$type"->($got);
+        } elsif($type->isa('Test2::Compare::Base')) {
+            $result &&= !compare($got, $type, \&strict_convert);
         }
     }
     $result = !$result if($self->{+NEGATE});

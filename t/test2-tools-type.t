@@ -103,6 +103,9 @@ subtest "type() tests" => sub {
         is(-1.2,  type('number', -1.1)); # fail
         is(-1.2,  type('number', -1.2)); # pass
 
+        is(4, type(integer => in_set(1, 5, 8))); # fail
+        is(4, type(integer => in_set(1, 4, 8))); # pass
+
         if(bool_supported()) {
             is(1==1, type('bool')); # pass
             is(1==2, type('bool')); # pass
@@ -130,6 +133,11 @@ subtest "type() tests" => sub {
         qr/\bis of type .* number and has value\b/,
         "failed test, op and name with 'has value' emitted in diagnostics are correct"
     );
+    like(
+        $events->[13]->info->[0]->details,
+        qr/\bis of type .* integer and Test2::Compare::Set /,
+        "failed test, op and name with another checker emitted in diagnostics are correct"
+    );
     foreach my $test (
         { result => "Ok",   name => "is(1,    type('integer'))"  },
         { result => "Fail", name => "is(1.2,  type('integer'))"  },
@@ -147,6 +155,9 @@ subtest "type() tests" => sub {
 
         { result => "Fail", name => "is(-1.2,  type('number', -1.1))" },
         { result => "Ok",   name => "is(-1.2,  type('number', -1.2))" },
+
+        { result => "Fail", name => "is(4, type(integer => in_set(1, 5, 8)))" },
+        { result => "Ok",   name => "is(4, type(integer => in_set(1, 4, 8)))" },
 
         { result => "Ok",   name => "is(1==1, type('bool'))", bool_required => 1 },
         { result => "Ok",   name => "is(1==2, type('bool'))", bool_required => 1 },
@@ -173,7 +184,7 @@ subtest "type() tests" => sub {
 
     like
         dies { type() },
-        qr/'type' is a required attribute/,
+        qr/'type' requires at least one argument/,
         "argument is mandatory";
     like
         dies { type('mammal') },
