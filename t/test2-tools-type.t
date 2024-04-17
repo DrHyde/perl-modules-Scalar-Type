@@ -5,6 +5,13 @@ use Test2::API qw/intercept/;
 use Capture::Tiny qw(capture);
 use Config;
 
+ok(
+    dies { is_positive(1) },
+    "extra functions aren't available unless asked for"
+);
+
+Test2::Tools::Type->import(':extras');
+
 subtest "is_* tests" => sub {
     my $events = intercept {
         is_integer(1,   "wow, a pass!");
@@ -22,6 +29,25 @@ subtest "is_* tests" => sub {
 
         is_positive("1.2",  "pass");
         is_negative("-1.2", "pass");
+
+        is_ref(1);                # fail
+        is_ref(\1);               # pass
+        is_object(1);             # fail
+        is_object(bless {});      # pass
+        is_hashref([]);           # fail
+        is_hashref({});           # pass
+        is_arrayref({});          # fail
+        is_arrayref([]);          # pass
+        is_scalarref(sub {});     # fail
+        is_scalarref(\"");        # pass
+        is_coderef(\"");          # fail
+        is_coderef(sub {});       # pass
+        is_globref(*is_integer);  # fail
+        is_globref(\*is_integer); # pass
+        is_regex(1);              # fail
+        is_regex(qr/abc/);        # pass
+        is_refref(\1);            # fail
+        is_refref(\\1);           # pass
 
         if(bool_supported()) {
             is_bool(1==1, "pass");
@@ -53,6 +79,25 @@ subtest "is_* tests" => sub {
 
         { result => 'Pass', name => 'is_positive("1.2")'  },
         { result => 'Pass', name => 'is_negative("-1.2")' },
+
+        { result => 'Fail', name => 'is_ref(1)'                },
+        { result => 'Pass', name => 'is_ref(\\1)'              },
+        { result => 'Fail', name => 'is_object(1)'             },
+        { result => 'Pass', name => 'is_object(bless {})'      },
+        { result => 'Fail', name => 'is_hashref([])'           },
+        { result => 'Pass', name => 'is_hashref({})'           },
+        { result => 'Fail', name => 'is_arrayref({})'          },
+        { result => 'Pass', name => 'is_arrayref([])'          },
+        { result => 'Fail', name => 'is_scalarref(sub {})'     },
+        { result => 'Pass', name => 'is_scalarref(\"")'        },
+        { result => 'Fail', name => 'is_coderef(\""'           },
+        { result => 'Pass', name => 'is_coderef(sub {})'       },
+        { result => 'Fail', name => 'is_globref(*is_integer)'  },
+        { result => 'Pass', name => 'is_globref(\*is_integer)' },
+        { result => 'Fail', name => 'is_regex(1)'              },
+        { result => 'Pass', name => 'is_regex(qr/abc/)'        },
+        { result => 'Fail', name => 'is_refref(\\1)'           },
+        { result => 'Pass', name => 'is_refref(\\\\1)'         },
 
         { result => 'Pass', name => 'is_bool(1==1)',    bool_required => 1 },
         { result => 'Pass', name => 'is_bool(1==2)',    bool_required => 1 },
@@ -105,6 +150,19 @@ subtest "type() tests" => sub {
 
         is(4, type(integer => in_set(1, 5, 8))); # fail
         is(4, type(integer => in_set(1, 4, 8))); # pass
+
+        is(  # pass
+            { int => 1, chicken => 'bird', elephant => 'seal' },
+            type(hashref => { int => 1, chicken => 'bird', elephant => 'seal' })
+        );
+        is(  # fail
+            { int => 1, chicken => 'bird', elephant => 'seal' },
+            type(hashref => { int => 1, chicken => 'coward' })
+        );
+        is(  # fail
+            bless({ int => 1, chicken => 'bird', elephant => 'seal' }),
+            type(!type('object'), hashref => { int => 1, chicken => 'bird', elephant => 'seal' })
+        );
 
         if(bool_supported()) {
             is(1==1, type('bool')); # pass
@@ -159,6 +217,10 @@ subtest "type() tests" => sub {
         { result => "Fail", name => "is(4, type(integer => in_set(1, 5, 8)))" },
         { result => "Ok",   name => "is(4, type(integer => in_set(1, 4, 8)))" },
 
+        { result => "Ok",   name => "is({ ... },        type(hashref => { same }))"         },
+        { result => "Fail", name => "is({ ... },        type(hashref => { not the same }))" },
+        { result => "Fail", name => "is(bless({ ... }), type(!type('object'), hashref => { same }))" },
+
         { result => "Ok",   name => "is(1==1, type('bool'))", bool_required => 1 },
         { result => "Ok",   name => "is(1==2, type('bool'))", bool_required => 1 },
         { result => "Fail", name => "is(1.2,  type('bool'))", bool_required => 1 },
@@ -186,19 +248,18 @@ subtest "type() tests" => sub {
         dies { type() },
         qr/'type' requires at least one argument/,
         "argument is mandatory";
-    like
-        dies { type('mammal') },
-        qr/'mammal' is not a valid type/,
-        "Invalid type, exception";
 };
 
 subtest "checks don't mess with types" => sub {
     my $events = intercept {
         my $integer = 1;
         is_integer($integer);    # pass
-        is_positive($integer);   # pass
-        is_negative($integer);   # fail
-        is_zero($integer);       # fail
+        is_positive($integer);
+        is_ref(1);
+        is_object(1);
+        is_hashref(1);
+        is_negative($integer);
+        is_zero($integer);
         is($integer, !type(qw(integer positive negative zero))); # LOL
         is_integer($integer);    # pass
     };
@@ -210,15 +271,18 @@ subtest "checks don't mess with types" => sub {
     isa_ok(
         $events->[-1],
         ['Test2::Event::Pass'],
-        "is_{positive,negative,zero} don't accidentally un-intify an int"
+        "is_{positive,negative,zero} and ref/reftype/blessed don't accidentally un-intify an int"
     );
 
     $events = intercept {
         my $number = 1.1;
         is_integer($number);   # fail
-        is_positive($number);  # pass
-        is_negative($number);  # fail
-        is_zero($number);      # fail
+        is_positive($number);
+        is_ref(1);
+        is_object(1);
+        is_hashref(1);
+        is_negative($number);
+        is_zero($number);
         is($number, type(qw(integer positive negative zero))); # LOL
         is_number($number);    # pass
     };
@@ -230,15 +294,18 @@ subtest "checks don't mess with types" => sub {
     isa_ok(
         $events->[-1],
         ['Test2::Event::Pass'],
-        "is_{positive,negative,zero} don't accidentally intify a float"
+        "is_{positive,negative,zero} and ref/reftype/blessed don't accidentally intify a float"
     );
 
     $events = intercept {
         my $string = "1.1";
         is_number($string);    # fail
-        is_positive($string);  # pass
-        is_negative($string);  # fail
-        is_zero($string);      # fail
+        is_positive($string);
+        is_ref(1);
+        is_object(1);
+        is_hashref(1);
+        is_negative($string);
+        is_zero($string);
         is($string, type(qw(integer positive negative zero))); # LOL
         is_number($string);    # fail
     };
@@ -250,7 +317,7 @@ subtest "checks don't mess with types" => sub {
     isa_ok(
         $events->[-1],
         ['Test2::Event::Fail'],
-        "is_{positive,negative,zero} don't accidentally numify a string"
+        "is_{positive,negative,zero} and ref/reftype/blessed don't accidentally numify a string"
     );
 };
 
@@ -261,8 +328,21 @@ subtest "show supported types" => sub {
     ) };
     like
         $types_supported,
-        qr/\n  negative\n/,
-        "found 'negative'";
+        match(qr/\n  number\n/),
+        "default types";
+    like
+        $types_supported,
+        !match(qr/\n  positive\n/),
+        "default types doesn't include the extras";
+
+    $types_supported = capture { system(
+        $Config{perlpath}, (map { "-I$_" } (@INC)),
+        '-MTest2::Tools::Type=show_types,:extras'
+    ) };
+    like
+        $types_supported,
+        match(qr/\n  positive\n/),
+        ":extras makes extras available";
 };
 
 done_testing;

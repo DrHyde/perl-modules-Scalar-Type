@@ -16,25 +16,30 @@ use Scalar::Type qw(bool_supported);
 
 our @EXPORT = qw(
     is_integer is_number
-    is_positive is_negative is_zero
     is_bool bool_supported
     type
 );
 
 sub import {
-    if($_[1] && $_[1] eq 'show_types') {
-        print "Supported types:\n";
-        print "  ".substr($_, 3)."\n" foreach(grep { /^is_/ } @EXPORT);
-        exit;
+    if(@_) {
+        if(grep { $_ eq ':extras' } @_) {
+            require Test2::Tools::Type::Extras;
+            Test2::Tools::Type::Extras->import();
+            push @EXPORT, @Test2::Tools::Type::Extras::EXPORT;
+            @_ = grep { $_ ne ':extras' } @_;
+        }
+        if(grep { $_ eq 'show_types' } @_) {
+            print "Supported types:\n";
+            print "  ".substr($_, 3)."\n" foreach(sort grep { /^is_/ } @EXPORT);
+            exit;
+        }
     }
     goto &Exporter::import;
 }
 
 sub is_integer  { _checker(\&Scalar::Type::is_integer, @_); }
 sub is_number   { _checker(\&Scalar::Type::is_number,  @_); }
-sub is_positive { _checker(sub { $_[0] > 0 },   @_); }
-sub is_negative { _checker(sub { $_[0] < 0 },   @_); }
-sub is_zero     { _checker(sub { $_[0] == 0; }, @_); }
+
 sub is_bool {
     croak("You need perl 5.36 or higher to use is_bool")
         unless(bool_supported());
@@ -91,6 +96,13 @@ Test2::Tools::Type - Tools for checking data types
         },
         "is the should_be_int field an integer?";
 
+or if you want even more check functions:
+
+    use Test2::V0;
+    use Test2::Tools::Type qw(:extras);
+
+    is_hashref($foo);
+
 =head1 OVERVIEW
 
 Sometimes you don't want to be too precise in your tests, you just want to
@@ -127,14 +139,6 @@ Emits a test pass if its argument is a number and a fail otherwise. Note that it
 can tell the difference between C<1> (a number), C<1.2> (also a number) and
 C<'1'> (a string).
 
-=head2 is_positive, is_negative
-
-Check the argument's sign. Note that C<0> is considered neither positive nor negative.
-
-=head2 is_zero
-
-Check that the argument is zero.
-
 =head2 type
 
 Returns a check that you can use in a test such as:
@@ -168,12 +172,52 @@ Valid arguments are numbers, any other Test2 checker, and any of the C<is_*> met
 names, with the leading C<is_> removed. You can see a list of supported types
 thus:
 
-    $ perl -MTest2::Tools::Type=show_types -e0
+    $ perl -MTest2::Tools::Type=show_types
+
+or to include the extra functions:
+
+    $ perl -MTest2::Tools::Type=show_types,:extras
+
+=head1 EXTRA FUNCTIONS
+
+By default the only check functions you get are those that are thin wrappers
+around L<Scalar::Type>. If you pass the C<:extras> argument at C<use>-time then
+all the following are available as well:
+
+=head2 is_positive, is_negative
+
+Check the argument's sign. Note that C<0> is considered neither positive nor
+negative.
+
+=head2 is_zero
+
+Check that the argument is zero.
+
+=head2 is_ref
+
+Check that the argument is a reference. This includes blessed objects.
+
+=head2 is_object
+
+Check that the argument is a blessed object
+
+=head2 is_regex
+
+Check that the argument is a regex
+
+=head2 is_hashref, is_arrayref, is_scalarref, is_coderef, is_globref, is_regex, is_refref
+
+Check that the argument is a reference to something of the appropriate type.
 
 =head1 CAVEATS
 
 The definitions of Boolean, integer and number are exactly the same as those in
 L<Scalar::Type>, which this is a thin wrapper around.
+
+Blessed objects will match both C<is_object> and the appropriate C<is_*ref>. If you
+need to check that something is a ref, but is I<not> blessed, do something like:
+
+    is($foo, type(hashref => !type('object')));
 
 =head1 SEE ALSO
 

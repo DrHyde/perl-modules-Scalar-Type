@@ -12,7 +12,7 @@ use Test2::Compare::Negatable;
 use Test2::Tools::Type ();
 use Test2::Util::HashBase qw(type);
 use Scalar::Type qw(bool_supported);
-use Scalar::Util qw(blessed);
+use Scalar::Util qw(reftype blessed);
 
 use Carp qw(croak);
 
@@ -20,15 +20,6 @@ sub init {
     my $self = shift;
 
     croak "'type' requires at least one argument" unless(@{$self->{+TYPE}});
-    foreach my $type (@{$self->{+TYPE}}) {
-        if(
-            !Scalar::Type::is_number($type) &&
-            !(blessed($type) && $type->isa('Test2::Compare::Base')) &&
-            !Test2::Tools::Type->can("is_$type")
-        ) {
-            croak "'$type' is not a valid type. If you think it should be please report this as a bug."
-        }
-    }
 
     $self->SUPER::init();
 }
@@ -37,11 +28,12 @@ sub name {
     join(
         " and ",
         map {
-            Scalar::Type::is_number($_)      ? 'has value' :
-            Test2::Tools::Type->can("is_$_") ? $_          :
-                                               blessed($_)
+            Scalar::Type::is_number($_) ? 'has value' :
+            blessed($_)                 ? blessed($_) :
+            ref($_)                     ? reftype($_) :
+                                          $_
         } @{shift->{+TYPE}}
-    )
+    );
 }
 
 sub operator { join(' ', 'is', (shift->{+NEGATE} ? 'not' : ()), 'of type') }
@@ -55,13 +47,11 @@ sub verify {
 
     my $result = 1;
     foreach my $type (@{$self->{+TYPE}}) {
-        if(Scalar::Type::is_number($type)) {
-            $result &&= ($got == $type);
-        } elsif(Test2::Tools::Type->can("is_$type")) {
+        if(Test2::Tools::Type->can("is_$type")) {
             local $Test2::Compare::Type::verifying = 1;
             no strict 'refs';
             $result &&= "Test2::Tools::Type::is_$type"->($got);
-        } elsif($type->isa('Test2::Compare::Base')) {
+        } else {
             $result &&= !compare($got, $type, \&strict_convert);
         }
     }
