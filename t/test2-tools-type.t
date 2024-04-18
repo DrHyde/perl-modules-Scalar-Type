@@ -161,23 +161,44 @@ subtest "type() tests" => sub {
         is(-1.2,  type('negative', 'number')); # pass
         is(-1.2,  type('negative', 'integer')); # fail
 
-        is(-1.2,  type('number', -1.1)); # fail
-        is(-1.2,  type('number', -1.2)); # pass
+        is(-1.2,  type('number', number(-1.1))); # fail
+        is(-1.2,  type('number', number(-1.2))); # pass
 
         is(4, type(integer => in_set(1, 5, 8))); # fail
         is(4, type(integer => in_set(1, 4, 8))); # pass
 
         is(  # pass
             { int => 1, chicken => 'bird', elephant => 'seal' },
-            type(hashref => { int => 1, chicken => 'bird', elephant => 'seal' })
+            type(
+                'hashref',
+                hash {
+                    field int      => 1;
+                    field chicken  => 'bird';
+                    field elephant => 'seal'
+                }
+            )
         );
         is(  # fail
             { int => 1, chicken => 'bird', elephant => 'seal' },
-            type(hashref => { int => 1, chicken => 'coward' })
+            type(
+                'hashref',
+                hash {
+                    field int     => 1;
+                    field chicken => 'coward';
+                }
+            )
         );
         is(  # fail
             bless({ int => 1, chicken => 'bird', elephant => 'seal' }),
-            type(!type('object'), hashref => { int => 1, chicken => 'bird', elephant => 'seal' })
+            type(
+                !type('object'),
+                'hashref',
+                hash {
+                    field int      => 1;
+                    field chicken  => 'bird';
+                    field elephant => 'seal';
+                }
+            )
         );
 
         if(bool_supported()) {
@@ -204,7 +225,7 @@ subtest "type() tests" => sub {
     );
     like(
         $events->[11]->info->[0]->details,
-        qr/\bis of type .* number and has value\b/,
+        qr/\bis of type .* number and Test2::Compare::Number /,
         "failed test, op and name with 'has value' emitted in diagnostics are correct"
     );
     like(
@@ -264,6 +285,15 @@ subtest "type() tests" => sub {
         dies { type() },
         qr/'type' requires at least one argument/,
         "argument is mandatory";
+
+    like
+        dies { type('mammal') },
+        qr/'mammal' is not a valid argument, must either be Test2::Tools::Type checkers or Test2::Compare::\* object/,
+        "exception: 'mammal' isn't a valid argument to type()";
+    like
+        dies { type('hashref' => { foo => 'bar' }) },
+        qr/'HASH.*' is not a valid argument/,
+        "exception: random data isn't a valid argument either";
 };
 
 subtest "checks don't mess with types" => sub {

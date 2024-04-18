@@ -21,6 +21,14 @@ sub init {
 
     croak "'type' requires at least one argument" unless(@{$self->{+TYPE}});
 
+    foreach my $type (@{$self->{+TYPE}}) {
+        croak "'$type' is not a valid argument, must either be Test2::Tools::Type checkers or Test2::Compare::* object"
+            unless(
+                Test2::Tools::Type->can("is_$type") ||
+                (blessed($type) && $type->isa('Test2::Compare::Base'))
+            );
+    }
+
     $self->SUPER::init();
 }
 
@@ -28,10 +36,7 @@ sub name {
     join(
         " and ",
         map {
-            Scalar::Type::is_number($_) ? 'has value' :
-            blessed($_)                 ? blessed($_) :
-            ref($_)                     ? reftype($_) :
-                                          $_
+            blessed($_) ? blessed($_) : $_
         } @{shift->{+TYPE}}
     );
 }

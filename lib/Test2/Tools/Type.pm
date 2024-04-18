@@ -160,17 +160,19 @@ something is a I<positive> integer, for example, you can do:
 
     is(94, type(qw(positive integer)));
 
-You can check a value and a type:
+You can check something's type and value:
 
-    is($foo, type('integer', 94));
+    # this uses 'number' from Test2::Tools::Compare
+    is($foo, type('integer', number(94)));
 
-And you can check a value and then check the same value with another Test2 checker:
+And indeed you can use any other Test2 checker:
 
+    # 'in_set' also comes from Test2::Tools::Compare
     is($foo, type('integer', in_set(1, 5, 8)));
 
-Valid arguments are numbers, any other Test2 checker, and any of the C<is_*> methods'
-names, with the leading C<is_> removed. You can see a list of supported types
-thus:
+Valid arguments are any other Test2 checker (specifically, anything that
+inherits from L<Test2::Compare::Base>), and any of the C<is_*> methods' names,
+with the leading C<is_> removed. You can see a list of supported types thus:
 
     $ perl -MTest2::Tools::Type=show_types
 
