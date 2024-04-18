@@ -5,11 +5,13 @@ use warnings;
 
 use base qw(Exporter);
 
+use Carp qw(croak);
+
 use Scalar::Util qw(blessed reftype);
 
 our $VERSION = '1';
 
-our @EXPORT = ();
+our @EXPORT = ('regex_supported');
 
 my @targets = map { $_.'::' } @_;
 
@@ -41,8 +43,15 @@ sub is_arrayref  { _checker(sub { reftype($_[0]) && reftype($_[0]) eq 'ARRAY'  }
 sub is_scalarref { _checker(sub { reftype($_[0]) && reftype($_[0]) eq 'SCALAR' }, @_); }
 sub is_coderef   { _checker(sub { reftype($_[0]) && reftype($_[0]) eq 'CODE'   }, @_); }
 sub is_globref   { _checker(sub { reftype($_[0]) && reftype($_[0]) eq 'GLOB'   }, @_); }
-sub is_regex     { _checker(sub { reftype($_[0]) && reftype($_[0]) eq 'REGEXP' }, @_); }
 sub is_refref    { _checker(sub { reftype($_[0]) && reftype($_[0]) eq 'REF'    }, @_); }
+
+sub is_regex {
+    croak("You need perl 5.12 or higher to use is_regex")
+        unless(regex_supported());
+    _checker(sub { reftype($_[0]) && reftype($_[0]) eq 'REGEXP' }, @_);
+}
+
+sub regex_supported { $] >= 5.012 }
 
 1;
 

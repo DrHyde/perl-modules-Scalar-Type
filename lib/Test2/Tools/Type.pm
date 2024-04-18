@@ -184,30 +184,41 @@ By default the only check functions you get are those that are thin wrappers
 around L<Scalar::Type>. If you pass the C<:extras> argument at C<use>-time then
 all the following are available as well:
 
+=head2 regex_supported
+
+Returns true if your perl can reliably report the difference between a regex
+and a reference to a scalar, or false otherwise. It will be true if your perl
+is version 5.12 or higher.
+
 =head2 is_positive, is_negative
 
-Check the argument's sign. Note that C<0> is considered neither positive nor
-negative.
+Emit a test pass/fail depending on the argument's sign. Note that C<0> is
+considered neither positive nor negative.
 
 =head2 is_zero
 
-Check that the argument is zero.
+Emit a pass/fail depending on whether the argument is zero.
 
 =head2 is_ref
 
-Check that the argument is a reference. This includes blessed objects.
+Emit a pass/fail depending on whether the argument is a reference. This
+includes blessed objects.
 
 =head2 is_object
 
-Check that the argument is a blessed object
+Emit a pass/fail depending on whether the argument is a blessed object.
 
 =head2 is_regex
 
-Check that the argument is a regex
+Emit a test pass if its argument is a regex, and a fail otherwise.
+
+It is a fatal error to call this on a perl that is too old. If your tests need
+to run on perl 5.10.1 or earlier then you will need to check C<regex_supported>
+before using it.
 
 =head2 is_hashref, is_arrayref, is_scalarref, is_coderef, is_globref, is_regex, is_refref
 
-Check that the argument is a reference to something of the appropriate type.
+Emit a pass/fail if the argumet is a reference to something of the appropriate type.
 
 =head1 CAVEATS
 

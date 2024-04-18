@@ -44,10 +44,13 @@ subtest "is_* tests" => sub {
         is_coderef(sub {});       # pass
         is_globref(*is_integer);  # fail
         is_globref(\*is_integer); # pass
-        is_regex(1);              # fail
-        is_regex(qr/abc/);        # pass
         is_refref(\1);            # fail
         is_refref(\\1);           # pass
+
+        if(regex_supported()) {
+            is_regex(1);              # fail
+            is_regex(qr/abc/);        # pass
+        }
 
         if(bool_supported()) {
             is_bool(1==1, "pass");
@@ -94,10 +97,11 @@ subtest "is_* tests" => sub {
         { result => 'Pass', name => 'is_coderef(sub {})'       },
         { result => 'Fail', name => 'is_globref(*is_integer)'  },
         { result => 'Pass', name => 'is_globref(\*is_integer)' },
-        { result => 'Fail', name => 'is_regex(1)'              },
-        { result => 'Pass', name => 'is_regex(qr/abc/)'        },
         { result => 'Fail', name => 'is_refref(\\1)'           },
         { result => 'Pass', name => 'is_refref(\\\\1)'         },
+
+        { result => 'Fail', name => 'is_regex(1)',       regex_required => 1 },
+        { result => 'Pass', name => 'is_regex(qr/abc/)', regex_required => 1 },
 
         { result => 'Pass', name => 'is_bool(1==1)',    bool_required => 1 },
         { result => 'Pass', name => 'is_bool(1==2)',    bool_required => 1 },
@@ -109,6 +113,8 @@ subtest "is_* tests" => sub {
     ) {
         my $event = shift(@{$events});
         SKIP: {
+            skip "Your perl doesn't support the regex type"
+                if($test->{regex_required} && !regex_supported());
             skip "Your perl doesn't support the Boolean type"
                 if($test->{bool_required} && !bool_supported());
             isa_ok(
@@ -119,11 +125,21 @@ subtest "is_* tests" => sub {
         }
     }
 
+    if(!regex_supported()) {
+        like
+            dies { is_regex(1==1) },
+            qr/You need perl 5.12/,
+            "is_regex: perl too old, exception";
+    } else {
+        is_regex(qr/abc/, "regex_supported on your perl");
+    }
     if(!bool_supported()) {
         like
             dies { is_bool(1==1) },
             qr/You need perl 5.36/,
             "is_bool: perl too old, exception";
+    } else {
+        is_bool(1==1, "bool_supported on your perl");
     }
 };
 
