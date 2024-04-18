@@ -1,5 +1,5 @@
 use Test2::V0;
-use Test2::Tools::Type;
+use Test2::Tools::Type; # NB no :extras!
 use Test2::API qw/intercept/;
 
 use Capture::Tiny qw(capture);
@@ -10,7 +10,31 @@ ok(
     "extra functions aren't available unless asked for"
 );
 
-Test2::Tools::Type->import(':extras');
+subtest "show supported types" => sub {
+    my $types_supported = capture {
+        Test2::Tools::Type->import(qw(show_types))
+    };
+    like
+        $types_supported,
+        match(qr/\n  number\n/),
+        "default types";
+    like
+        $types_supported,
+        !match(qr/\n  positive\n/),
+        "default types doesn't include the extras";
+
+    # this does *not* make extras available for the test of the tests
+    # because `show_types` aborts import() before it can do anything
+    $types_supported = capture {
+        Test2::Tools::Type->import(qw(show_types :extras))
+    };
+    like
+        $types_supported,
+        match(qr/\n  positive\n/),
+        ":extras makes extras visible";
+};
+
+Test2::Tools::Type->import(qw(:extras));
 
 subtest "is_* tests" => sub {
     my $events = intercept {
@@ -365,30 +389,6 @@ subtest "checks don't mess with types" => sub {
         ['Test2::Event::Fail'],
         "is_{positive,negative,zero} and ref/reftype/blessed don't accidentally numify a string"
     );
-};
-
-subtest "show supported types" => sub {
-    my $types_supported = capture { system(
-        $Config{perlpath}, (map { "-I$_" } (@INC)),
-        qw(-MTest2::Tools::Type=show_types -e0)
-    ) };
-    like
-        $types_supported,
-        match(qr/\n  number\n/),
-        "default types";
-    like
-        $types_supported,
-        !match(qr/\n  positive\n/),
-        "default types doesn't include the extras";
-
-    $types_supported = capture { system(
-        $Config{perlpath}, (map { "-I$_" } (@INC)),
-        '-MTest2::Tools::Type=show_types,:extras'
-    ) };
-    like
-        $types_supported,
-        match(qr/\n  positive\n/),
-        ":extras makes extras available";
 };
 
 done_testing;

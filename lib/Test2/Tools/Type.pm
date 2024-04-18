@@ -31,7 +31,7 @@ sub import {
         if(grep { $_ eq 'show_types' } @_) {
             print "Supported types:\n";
             print "  ".substr($_, 3)."\n" foreach(sort grep { /^is_/ } @EXPORT);
-            exit;
+            return;
         }
     }
     goto &Exporter::import;
