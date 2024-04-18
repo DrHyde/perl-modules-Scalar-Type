@@ -301,9 +301,9 @@ subtest "checks don't mess with types" => sub {
         my $integer = 1;
         is_integer($integer);    # pass
         is_positive($integer);
-        is_ref(1);
-        is_object(1);
-        is_hashref(1);
+        is_ref($integer);
+        is_object($integer);
+        is_hashref($integer);
         is_negative($integer);
         is_zero($integer);
         is($integer, !type(qw(integer positive negative zero))); # LOL
@@ -324,9 +324,9 @@ subtest "checks don't mess with types" => sub {
         my $number = 1.1;
         is_integer($number);   # fail
         is_positive($number);
-        is_ref(1);
-        is_object(1);
-        is_hashref(1);
+        is_ref($number);
+        is_object($number);
+        is_hashref($number);
         is_negative($number);
         is_zero($number);
         is($number, type(qw(integer positive negative zero))); # LOL
@@ -347,9 +347,9 @@ subtest "checks don't mess with types" => sub {
         my $string = "1.1";
         is_number($string);    # fail
         is_positive($string);
-        is_ref(1);
-        is_object(1);
-        is_hashref(1);
+        is_ref($string);
+        is_object($string);
+        is_hashref($string);
         is_negative($string);
         is_zero($string);
         is($string, type(qw(integer positive negative zero))); # LOL
