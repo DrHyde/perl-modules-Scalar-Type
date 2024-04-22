@@ -18,12 +18,6 @@ WriteMakefile(
         'Capture::Tiny'   => 0,
         'Carp'            => 0,
         'if'              => 0,
-
-        # for Scalar::Type tests, these will eventually get ported to Test2
-        'Test::Exception' => 0,
-        'Test::More'      => 0.96,
-
-        # for Test2::Tools::Type, earlier probably works too
         'Test2::API'      => 1.302198,
         'Test2::V0'       => 0.000159,
     },
