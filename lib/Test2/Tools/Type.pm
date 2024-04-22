@@ -5,7 +5,7 @@ use warnings;
 
 use base qw(Exporter);
 
-our $VERSION = '1';
+our $VERSION = '1.0.1';
 
 use Carp qw(croak);
 

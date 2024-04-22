@@ -9,7 +9,7 @@ use Carp qw(croak);
 
 use Scalar::Util qw(blessed reftype);
 
-our $VERSION = '1';
+our $VERSION = '1.0.1';
 
 our @EXPORT = ('regex_supported');
 

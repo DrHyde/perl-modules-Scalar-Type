@@ -5,7 +5,7 @@ use warnings;
 
 use base 'Test2::Compare::Base';
 
-our $VERSION = '1';
+our $VERSION = '1.0.1';
 
 use Test2::Compare qw(compare strict_convert);
 use Test2::Compare::Negatable;
