@@ -1,0 +1,29 @@
+on: [push, pull_request]
+name: longdouble on Mac
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        runs-on: ['macos-13', 'macos-14', 'macos-12']
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build perl ...
+        run: |
+            curl -L https://install.perlbrew.pl | bash
+            source ~/perl5/perlbrew/etc/bashrc
+            perlbrew install --notest -D uselongdouble perl-5.38.0 --as perl-5.38.0-uselongdouble
+
+      - name: run tests
+        env:
+          PERL_USE_UNSAFE_INC: 0
+        run: |
+            source ~/perl5/perlbrew/etc/bashrc
+            perlbrew switch perl-5.38.0-uselongdouble
+            perl -V|grep archname
+            perl -V|grep .vsize
+            perlbrew install-cpanm
+            cpanm --installdeps .
+            perl Makefile.PL
+            make test
