@@ -14,6 +14,13 @@ SV* _scalar_type(SV* argument) {
                 (SvIsUV(argument) ? "%" UVuf        : "%" IVdf),
                 (SvIsUV(argument) ? SvUVX(argument) : SvIVX(argument))
             );
+            printf("Debug:\n"
+                   "  format:       %%%s:\n"
+                   "  formatted IV: %s\n"
+                   "  PV:           %s\n",
+                   (SvIsUV(argument) ? UVuf : IVdf),
+                   num_as_str,
+                   SvPVX(argument));
             rval = (
                 (strcmp(SvPVX(argument), num_as_str)) == 0
                     ? newSVpv("INTEGER", 7)
