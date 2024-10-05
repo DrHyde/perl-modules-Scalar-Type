@@ -33,6 +33,13 @@ SV* _scalar_type(SV* argument) {
         if(SvPOK(argument)) {
             /* float is also a string, better see if it's not float-ified 007.5 */
             sprintf(num_as_str, "%" NVgf, SvNVX(argument));
+            printf("Debug:\n"
+                   "  format:       %%%s:\n"
+                   "  formatted NV: %s\n"
+                   "  PV:           %s\n",
+                   NVgf,
+                   num_as_str,
+                   SvPVX(argument));
             rval = (
                 (strcmp(SvPVX(argument), num_as_str)) == 0
                     ? newSVpv("NUMBER", 6)
