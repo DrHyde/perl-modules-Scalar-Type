@@ -352,7 +352,8 @@ L<Test2::Tools::Type>, which is bundled with this module.
 
 L<Scalar::Util> in particular its C<blessed> function.
 
-L<builtin> if you have perl 5.35.7 or later.
+L<builtin> if you have perl 5.35.7 or later, in particular its C<is_bool>,
+C<created_as_string> and C<created_as_number> functions.
 
 =head1 BUGS
 
