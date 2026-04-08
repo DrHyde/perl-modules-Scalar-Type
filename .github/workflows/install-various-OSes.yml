@@ -1,6 +1,5 @@
 on: [push, pull_request]
 name: Install on various OSes
-
 jobs:
   build:
     runs-on: 'macos-latest'
