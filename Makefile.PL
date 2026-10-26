@@ -3,8 +3,10 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile(
     NAME => 'Scalar::Type',
-    META_MERGE => {
+    META_ADD => {
         license => 'open_source',
+},
+META_MERGE => {
         resources => {
             repository => 'https://github.com/DrHyde/perl-modules-Scalar-Type',
             bugtracker => 'https://github.com/DrHyde/perl-modules-Scalar-Type/issues'
